@@ -8,7 +8,7 @@
 - **MSSV: 2A202602614**
 - **Lớp:** K4-L3B
 - **Repository URL: https://github.com/tiennl/K4-L3-DAY13-NgoLeThuyTien-2A202602614-Monitoring-LLMOps**
-- **Commit SHA cuối:** `3b7a57a` (ảnh 01 chụp ở commit này; commit sau đó chỉ thêm ảnh 01 và điền báo cáo, không đổi code)
+- **Commit SHA cuối:** `f27d2ba` (ảnh 01 chụp pytest ở `3b7a57a`; `f27d2ba` chỉ thêm ảnh 01 và điền báo cáo, không đổi code)
 - **Challenge ID:** `day13-k4-l3b-monitoring-llmops-v1`
 - **Tên project Langfuse cá nhân:** `day13-k4-l3b-2A202602614`
 
