@@ -3,11 +3,20 @@ primary_slo:
   name: fast_successful_requests
   window: 28d
   sli:
-    good_event: 'event == "response_sent" and latency_ms <= 3000'
+    good_event: 'event == "response_sent" and latency_ms <= 2000'
     total_event: 'event == "request_received"'
   target_percent: 99.5
   error_budget_percent: 0.5
-  note: Học viên phải giải thích hoặc điều chỉnh ngưỡng bằng baseline của mình. Ví dụ nếu có 10,000 request trong cửa sổ 28 ngày, error budget 0.5% nghĩa là tối đa 50 request được phép không đạt SLO.
+  note: >
+    Baseline của tôi (load_test.py, 43 request, không bật incident): P50 khoảng 159ms,
+    P95 khoảng 162ms, P99 khoảng 0.9s (chỉ do một request đầu tiên chậm 1.4s), error rate 0%. Ngưỡng starter 3000ms quá rộng: khi bật
+    rag_slow (+2.5s trong retrieve) latency chỉ khoảng 2.7s và vẫn "đạt" SLO dù người dùng
+    chậm gấp 10 lần bình thường. Vì vậy tôi hạ ngưỡng xuống 2000ms (gấp hơn 2 lần P99 baseline
+    và hơn 12 lần P95 nên không báo nhầm, nhưng vẫn bắt được rag_slow). Error budget 0.5% = với 10,000 request
+    trong 28 ngày thì tối đa 50 request được phép chậm (> 2000ms) hoặc không có response_sent;
+    với 1,000 request là 5 request; ở quy mô lab (~100 request) là dưới 1 request, nghĩa là
+    chỉ cần một request lỗi đã dùng hết budget. Chỉ dùng số request này để đọc mức độ, không
+    phải để tự động hoá.
 guardrails:
   error_rate_pct_max: 2
   daily_cost_usd_max: 2.5
