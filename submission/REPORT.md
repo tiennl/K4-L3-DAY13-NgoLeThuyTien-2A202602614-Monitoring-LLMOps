@@ -8,7 +8,7 @@
 - **MSSV: 2A202602614**
 - **Lớp:** K4-L3B
 - **Repository URL: https://github.com/tiennl/K4-L3-DAY13-NgoLeThuyTien-2A202602614-Monitoring-LLMOps**
-- **Commit SHA cuối:** `f27d2ba` (ảnh 01 chụp pytest ở `3b7a57a`; `f27d2ba` chỉ thêm ảnh 01 và điền báo cáo, không đổi code)
+- **Commit SHA cuối:** `3fb7740` (ảnh 01 chụp pytest ở `b6c844c`; `3fb7740` chỉ thêm ảnh 01 và điền báo cáo, không đổi code)
 - **Challenge ID:** `day13-k4-l3b-monitoring-llmops-v1`
 - **Tên project Langfuse cá nhân:** `day13-k4-l3b-2A202602614`
 
@@ -39,7 +39,7 @@
 |---|---|---|---|
 | `validate_logs.py` | 30/100 (21 log, thiếu required fields/context, 0 correlation ID) | 100/100 | 0 record thiếu field, 10 correlation ID |
 | `validate_dashboard.py` | 6/6 (contract starter, chưa có dữ liệu) | HỢP LỆ: 6/6 panel | Đã dựng dashboard có dữ liệu thật, evidence 11 |
-| `pytest` | | 26 passed in 0.97s | Chụp ở commit `3b7a57a`, evidence 01 |
+| `pytest` | | 26 passed in 0.97s | Chụp ở commit `b6c844c`, evidence 01 |
 | Số traces hợp lệ | 0 (chưa có retrieval/generation) | 51 trace đủ cây (48 có prompt link) | Kiểm tra bằng Langfuse observations API |
 | Số PII leak | 0 | 0 | Log runtime chỉ còn `[REDACTED_*]` |
 | Latency P95 / TTFT P95 | | P95 162 ms (P50 159 ms, P99 883 ms) | 43 request, không bật incident; TTFT P95 khoảng 50-55 ms |
