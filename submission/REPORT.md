@@ -9,7 +9,7 @@
 - **Lớp:** K4-L3B
 - **Repository URL: https://github.com/tiennl/K4-L3-DAY13-NgoLeThuyTien-2A202602614-Monitoring-LLMOps**
 - **Commit SHA cuối:**
-- **Challenge ID:**
+- **Challenge ID:** `day13-k4-l3b-monitoring-llmops-v1`
 - **Tên project Langfuse cá nhân:** `day13-k4-l3b-2A202602614`
 
 ## 2. Evidence index
@@ -74,14 +74,14 @@
 
 ## 7. Điều tra challenge
 
-- **Challenge ID:**
-- **Khoảng thời gian điều tra:**
-- **Triệu chứng từ metrics:**
-- **Log line và correlation ID liên quan:**
-- **Trace ID và span gây ảnh hưởng:**
-- **Root cause:**
-- **Fix action:**
-- **Preventive measure:**
+- **Challenge ID:** `day13-k4-l3b-monitoring-llmops-v1`
+- **Khoảng thời gian điều tra:** 2026-09-30, 12:31:47–12:32:00 (giờ VN, UTC+7); baseline 12:31:30–12:31:42 trước đó.
+- **Triệu chứng từ metrics:** Latency (`latency_ms` trong log, không dùng số client của `load_test.py`) của feature `monitoring` tăng từ khoảng 160ms (baseline 10 request, P50 160ms) lên khoảng 2658–2665ms ở cả 5 request challenge, tức khoảng 16 lần và vượt SLO 2000ms. Giá trị gần như bằng nhau nên là độ trễ cố định, không phải nhiễu. Error rate vẫn 0% (mọi response 200), TTFT và token không đổi.
+- **Log line và correlation ID liên quan:** event `response_sent`, `correlation_id=req-cffb2dbf`, `feature=monitoring`, `latency_ms=2661`, `ts=2026-09-30T05:31:50Z`.
+- **Trace ID và span gây ảnh hưởng:** trace `6780f7dd08e8f23c73e46ab3ec1c93e6` (metadata `correlation_id=req-cffb2dbf`). `lab-agent-run` 2,66s gồm `retrieval` **2,50s** (khoảng 94%) và `generation` 0,15s (bình thường, TTFT 54ms). Ở request không bị ảnh hưởng, `retrieval` là 0,00s.
+- **Root cause:** Bước retrieval (RAG) bị chậm thêm khoảng 2,5s cho mỗi request `monitoring`, tương ứng incident `rag_slow` do challenge bật. Generation/LLM không phải nguyên nhân: `generation` giữ 0,15–0,16s, cost và token bình thường. Ba bằng chứng đều chỉ về cùng một nguyên nhân: metric (latency tăng đúng theo khoảng 2,5s), log (`latency_ms=2661`), trace (`retrieval=2,50s`).
+- **Fix action:** Tắt incident bằng `python scripts/inject_incident.py --disable`, sau đó `/health` báo mọi incident đều `false`. Kiểm tra lại bằng 5 request `monitoring`: response về khoảng 0,17s (log `latency_ms` 157–161ms), bằng baseline. Đây là mitigation cho sự cố mô phỏng; với hệ thống thật, hành động tương ứng là khôi phục hoặc chuyển sang nguồn retrieval khỏe, hoặc bỏ qua retrieval tạm thời.
+- **Preventive measure:** (1) Alert `HighLatencyP95` (P95 > 2000ms, 5 phút) đã có trong `config/alert_rules.yaml` và sẽ kích hoạt với sự cố này (2660ms > 2000ms), runbook ở `docs/alerts.md`. (2) Runbook nêu rõ: sau khi alert báo latency, mở trace cùng `correlation_id` và so sánh span `retrieval` với `generation` để khoanh vùng. (3) Đề xuất thêm chưa triển khai: alert riêng theo latency của span retrieval, timeout cho retrieval kèm fallback, và load test định kỳ có so sánh baseline.
 
 > Gợi ý cách viết ngắn, không thay cho evidence thực tế: "Metric cho thấy `[latency/error/cost/quality]` bất thường trong `[khoảng thời gian]`. Log line `[event]` có `correlation_id=[...]` đại diện cho request bị ảnh hưởng. Trace cùng `correlation_id` cho thấy span `[retrieval/generation/prompt/tool]` có dấu hiệu `[chậm/lỗi/token tăng]`. Root cause là `[nguyên nhân suy ra từ evidence]`. Fix action là `[hành động khôi phục]`; preventive measure là `[alert/runbook/test/guardrail để ngăn tái diễn]`."
 
