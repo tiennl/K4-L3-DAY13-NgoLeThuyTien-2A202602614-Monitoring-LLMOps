@@ -8,7 +8,7 @@
 - **MSSV: 2A202602614**
 - **Lớp:** K4-L3B
 - **Repository URL: https://github.com/tiennl/K4-L3-DAY13-NgoLeThuyTien-2A202602614-Monitoring-LLMOps**
-- **Commit SHA cuối:**
+- **Commit SHA cuối:** `3b7a57a` (ảnh 01 chụp ở commit này; commit sau đó chỉ thêm ảnh 01 và điền báo cáo, không đổi code)
 - **Challenge ID:** `day13-k4-l3b-monitoring-llmops-v1`
 - **Tên project Langfuse cá nhân:** `day13-k4-l3b-2A202602614`
 
@@ -39,7 +39,7 @@
 |---|---|---|---|
 | `validate_logs.py` | 30/100 (21 log, thiếu required fields/context, 0 correlation ID) | 100/100 | 0 record thiếu field, 10 correlation ID |
 | `validate_dashboard.py` | 6/6 (contract starter, chưa có dữ liệu) | HỢP LỆ: 6/6 panel | Đã dựng dashboard có dữ liệu thật, evidence 11 |
-| `pytest` | | | |
+| `pytest` | | 26 passed in 0.97s | Chụp ở commit `3b7a57a`, evidence 01 |
 | Số traces hợp lệ | 0 (chưa có retrieval/generation) | 51 trace đủ cây (48 có prompt link) | Kiểm tra bằng Langfuse observations API |
 | Số PII leak | 0 | 0 | Log runtime chỉ còn `[REDACTED_*]` |
 | Latency P95 / TTFT P95 | | P95 162 ms (P50 159 ms, P99 883 ms) | 43 request, không bật incident; TTFT P95 khoảng 50-55 ms |
@@ -87,13 +87,13 @@
 
 ## 8. Giải thích và tự đánh giá
 
-- **Một quyết định kỹ thuật quan trọng và lý do:**
-- **Một lỗi/blocker đã gặp:**
-- **Cách tìm nguyên nhân và xử lý:**
-- **Cách hiểu luồng Metrics → Logs → Traces:**
-- **Vai trò của prompt version, token/cost, SLO hoặc rollback trong vận hành LLM:**
-- **Điều quan trọng nhất đã học:**
-- **Hạn chế hoặc phần chưa hoàn thành, nếu có:**
+- **Một quyết định kỹ thuật quan trọng và lý do:** Hạ SLO latency từ 3000ms xuống 2000ms, vì ngưỡng cũ bỏ sót `rag_slow` (khoảng 2,7s).
+- **Một lỗi/blocker đã gặp:** Lần chạy challenge đầu, tôi đọc latency từ `load_test.py` (10–13s) nên tưởng sự cố nặng hơn thực tế.
+- **Cách tìm nguyên nhân và xử lý:** Số phía client bị đội lên do request xếp hàng. Tôi chạy lại có baseline và lấy `latency_ms` từ log (khoảng 2660ms).
+- **Cách hiểu luồng Metrics → Logs → Traces:** Metrics cho biết có sự cố, logs chọn request cụ thể qua `correlation_id`, traces chỉ ra span gây chậm (`retrieval` 2,50s).
+- **Vai trò của prompt version, token/cost, SLO hoặc rollback trong vận hành LLM:** Prompt version cho phép thử và rollback không cần sửa code. Cost/token ổn định giúp loại trừ LLM. SLO biến "chậm" thành con số để alert.
+- **Điều quan trọng nhất đã học:** Không đoán root cause; đi theo Metrics → Logs → Traces.
+- **Hạn chế hoặc phần chưa hoàn thành, nếu có:** Fix chỉ là tắt incident; các đề xuất phòng ngừa chưa triển khai.
 
 ## 9. Checklist trước khi nộp
 
