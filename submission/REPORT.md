@@ -4,13 +4,13 @@
 
 ## 1. Thông tin học viên
 
-- **Họ và tên:**
-- **MSSV:**
+- **Họ và tên: Ngô Lê Thuỷ Tiên**
+- **MSSV: 2A202602614**
 - **Lớp:** K4-L3B
-- **Repository URL:**
+- **Repository URL: https://github.com/tiennl/K4-L3-DAY13-NgoLeThuyTien-2A202602614-Monitoring-LLMOps**
 - **Commit SHA cuối:**
 - **Challenge ID:**
-- **Tên project Langfuse cá nhân:** `day13-k4-l3b-<MSSV>`
+- **Tên project Langfuse cá nhân:** `day13-k4-l3b-2A202602614`
 
 ## 2. Evidence index
 
@@ -37,20 +37,20 @@
 
 | Nội dung | Baseline | Kết quả cuối | Nhận xét |
 |---|---|---|---|
-| `validate_logs.py` | | | |
+| `validate_logs.py` | 30/100 (21 log, thiếu required fields/context, 0 correlation ID) | 100/100 | 0 record thiếu field, 10 correlation ID |
 | `validate_dashboard.py` | | | |
 | `pytest` | | | |
 | Số traces hợp lệ | | | |
-| Số PII leak | | | |
+| Số PII leak | 0 | 0 | Log runtime chỉ còn `[REDACTED_*]` |
 | Latency P95 / TTFT P95 | | | |
 | Retrieval success rate | | | |
 
 ## 4. Logging và PII
 
-- **Cách tạo/nhận và truyền correlation ID:**
-- **Các metadata được ghi vào structured log:**
-- **Cách bảo đảm PII được scrub trước khi ghi:**
-- **Cách kiểm chứng kết quả:**
+- **Cách tạo/nhận và truyền correlation ID:** `CorrelationIdMiddleware` (`app/middleware.py`) gọi `clear_contextvars()` đầu mỗi request, nhận header `x-request-id` hoặc sinh `req-<8 hex>`, bind vào structlog contextvars và `request.state`, rồi trả lại qua header `x-request-id` cùng `x-response-time-ms`. ID dùng cho evidence 04: `req-cp1log04` (evidence 05: `req-cp1pii02`).
+- **Các metadata được ghi vào structured log:** `ts`, `level`, `event`, `correlation_id`, `user_id_hash` (SHA-256 cắt 12 ký tự), `session_id`, `feature`, `model`, `env`; `response_sent` thêm `latency_ms`, `ttft_ms`, `tokens_in/out`, `cost_usd`, `quality_score`. Các field context được bind trong `app/main.py` trước log `request_received`.
+- **Cách bảo đảm PII được scrub trước khi ghi:** processor `scrub_event` được đăng ký trong `app/logging_config.py` trước `JsonlFileProcessor`, nên payload và event đã được che trước khi ghi file/render JSON. `app/pii.py` che email, điện thoại VN, CCCD, thẻ và passport.
+- **Cách kiểm chứng kết quả:** `validate_logs.py` từ 30/100 lên 100/100 (0 PII leak, 10 correlation ID khác nhau); `tests/test_pii.py` có test CCCD, thẻ, passport; gửi request chứa PII giả và thấy log hiện `[REDACTED_*]` (evidence 05).
 
 ## 5. Tracing và prompt versioning
 
